@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Account - DepEd BAC Tracking System</title>
+  <link rel="stylesheet" href="Home.css">
+</head>
+<body>
+  <div class="header">
+    <img src="image/DEPED-LAOAG_SEAL_Glow.png" alt="DepEd Logo" class="header-logo">
+    <div class="header-text">
+      <div class="title-left">SCHOOLS DIVISION OF LAOAG CITY<br>DEPARTMENT OF EDUCATION</div>
+      <div class="title-right">Bids and Awards Committee Tracking System</div>
+    </div>
+  </div>
+
+  <div class="create-account-container">
+    <h2>Create Account</h2>
+    <form id="createAccountForm">
+      <label for="newUsername">Username</label>
+      <input type="text" id="newUsername" required placeholder="Enter new username">
+
+      <label for="newPassword">Password</label>
+      <input type="password" id="newPassword" required placeholder="Enter new password">
+
+      <label for="newRole">Role</label>
+      <select id="newRole" required>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <button type="submit">Create Account</button>
+    </form>
+    <div id="createAccountMsg"></div>
+    <button onclick="window.location.href='Dashboard.html'" style="margin-top:15px;">Back to Dashboard</button>
+  </div>
+
+  <script>
+  document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value;
+    const role = document.getElementById('newRole').value;
+    const msg = document.getElementById('createAccountMsg');
+
+    if (!username || !password || !role) {
+      msg.textContent = "Please fill in all fields.";
+      msg.style.color = "#c62828";
+      return;
+    }
+
+    let accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+    if (accounts.some(acc => acc.username === username)) {
+      msg.textContent = "Username already exists.";
+      msg.style.color = "#c62828";
+      return;
+    }
+    accounts.push({ username, password, role });
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+
+    // Redirect to success UI
+    window.location.href = "CreateSuccess.html";
+  });
+  </script>
+</body>
+</html>

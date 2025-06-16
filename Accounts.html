@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Accounts - DepEd BAC Tracking System</title>
+  <link rel="stylesheet" href="Home.css">
+  
+<body>
+  <div class="header">
+    <img src="image/DEPED-LAOAG_SEAL_Glow.png" alt="DepEd Logo" class="header-logo">
+    <div class="header-text">
+      <div class="title-left">SCHOOLS DIVISION OF LAOAG CITY<br>DEPARTMENT OF EDUCATION</div>
+      <div class="title-right">Bids and Awards Committee Tracking System</div>
+    </div>
+  </div>
+
+  <div class="accounts-container">
+    <h2>Manage Accounts</h2>
+    <div class="accounts-category">
+      <h3>Admin Accounts</h3>
+      <ul id="adminAccountsList"></ul>
+    </div>
+    <div class="accounts-category">
+      <h3>User Accounts</h3>
+      <ul id="userAccountsList"></ul>
+    </div>
+    <div id="accountsMsg" class="msg"></div>
+    <button class="back-btn" onclick="window.location.href='Dashboard.html'">Back to Dashboard</button>
+  </div>
+
+  <script>
+    let editIndex = null;
+
+    function renderAccounts() {
+      const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+      const adminList = document.getElementById('adminAccountsList');
+      const userList = document.getElementById('userAccountsList');
+      const msg = document.getElementById('accountsMsg');
+      msg.textContent = "";
+
+      // Separate accounts by role
+      const admins = accounts.filter(acc => acc.role === "admin");
+      const users = accounts.filter(acc => acc.role !== "admin"); // includes "user" and any others
+
+      // Render admin accounts
+      if (admins.length === 0) {
+        adminList.innerHTML = "<li>No admin accounts found.</li>";
+      } else {
+        adminList.innerHTML = admins.map((acc, idx) => {
+          if (editIndex === `admin-${idx}`) {
+            return `<li>
+              <span class="edit-fields">
+                <input type="text" id="editUsername" value="${acc.username}" ${acc.username === "admin" ? "readonly" : ""} />
+                <input type="password" id="editPassword" placeholder="New password" />
+              </span>
+              <span>
+                <button class="save-btn" onclick="saveEdit('admin',${idx})">Save</button>
+                <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+              </span>
+            </li>`;
+          } else {
+            return `<li>
+              <span>Username: <b>${acc.username}</b></span>
+              <span>
+                ${acc.username !== "admin" ? `
+                  <button class="edit-btn" onclick="editAccount('admin',${idx})">Edit</button>
+                  <button class="delete-btn" onclick="deleteAccount('admin',${idx})">Delete</button>
+                ` : ""}
+              </span>
+            </li>`;
+          }
+        }).join('');
+      }
+
+      // Render user accounts
+      if (users.length === 0) {
+        userList.innerHTML = "<li>No user accounts found.</li>";
+      } else {
+        userList.innerHTML = users.map((acc, idx) => {
+          if (editIndex === `user-${idx}`) {
+            return `<li>
+              <span class="edit-fields">
+                <input type="text" id="editUsername" value="${acc.username}" />
+                <input type="password" id="editPassword" placeholder="New password" />
+              </span>
+              <span>
+                <button class="save-btn" onclick="saveEdit('user',${idx})">Save</button>
+                <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+              </span>
+            </li>`;
+          } else {
+            return `<li>
+              <span>Username: <b>${acc.username}</b></span>
+              <span>
+                <button class="edit-btn" onclick="editAccount('user',${idx})">Edit</button>
+                <button class="delete-btn" onclick="deleteAccount('user',${idx})">Delete</button>
+              </span>
+            </li>`;
+          }
+        }).join('');
+      }
+    }
+
+    function editAccount(category, idx) {
+      editIndex = `${category}-${idx}`;
+      renderAccounts();
+    }
+
+    function cancelEdit() {
+      editIndex = null;
+      renderAccounts();
+    }
+
+    function saveEdit(category, idx) {
+      const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+      const admins = accounts.filter(acc => acc.role === "admin");
+      const users = accounts.filter(acc => acc.role !== "admin");
+      const newUsername = document.getElementById('editUsername').value.trim();
+      const newPassword = document.getElementById('editPassword').value;
+      const msg = document.getElementById('accountsMsg');
+
+      if (!newUsername) {
+        msg.textContent = "Username cannot be empty.";
+        msg.classList.remove("success");
+        return;
+      }
+      if (!newPassword) {
+        msg.textContent = "Password cannot be empty.";
+        msg.classList.remove("success");
+        return;
+      }
+
+      // Prevent duplicate usernames (except for current)
+      let currentList = category === "admin" ? admins : users;
+      if (currentList.some((acc, idx2) => acc.username === newUsername && idx2 !== idx)) {
+        msg.textContent = "Username already exists.";
+        msg.classList.remove("success");
+        return;
+      }
+
+      // Update the correct account in the main accounts array
+      let accountIdx;
+      if (category === "admin") {
+        accountIdx = accounts.findIndex(acc => acc.role === "admin" && admins.indexOf(acc) === idx);
+      } else {
+        accountIdx = accounts.findIndex(acc => acc.role !== "admin" && users.indexOf(acc) === idx);
+      }
+      accounts[accountIdx].username = newUsername;
+      accounts[accountIdx].password = newPassword;
+      localStorage.setItem('accounts', JSON.stringify(accounts));
+      msg.textContent = "Account updated successfully!";
+      msg.classList.add("success");
+      setTimeout(() => {
+        msg.textContent = "";
+        msg.classList.remove("success");
+      }, 1500);
+      editIndex = null;
+      renderAccounts();
+    }
+
+    function deleteAccount(category, idx) {
+      let accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+      const admins = accounts.filter(acc => acc.role === "admin");
+      const users = accounts.filter(acc => acc.role !== "admin");
+      let accountIdx;
+      if (category === "admin") {
+        accountIdx = accounts.findIndex(acc => acc.role === "admin" && admins.indexOf(acc) === idx);
+      } else {
+        accountIdx = accounts.findIndex(acc => acc.role !== "admin" && users.indexOf(acc) === idx);
+      }
+      if (confirm(`Are you sure you want to delete the account "${accounts[accountIdx].username}"?`)) {
+        accounts.splice(accountIdx, 1);
+        localStorage.setItem('accounts', JSON.stringify(accounts));
+        renderAccounts();
+      }
+    }
+
+    renderAccounts();
+    // Make functions globally accessible
+    window.deleteAccount = deleteAccount;
+    window.editAccount = editAccount;
+    window.cancelEdit = cancelEdit;
+    window.saveEdit = saveEdit;
+  </script>
+</body>
+</html>

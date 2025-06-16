@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - DepEd BAC Tracking System</title>
+  <link rel="stylesheet" href="Home.css">
+</head>
+<body>
+  <div class="header">
+    <img src="image/DEPED-LAOAG_SEAL_Glow.png" alt="DepEd Logo" class="header-logo">
+    <div class="header-text">
+      <div class="title-left">SCHOOLS DIVISION OF LAOAG CITY<br>DEPARTMENT OF EDUCATION</div>
+    </div>
+    <div class="user-menu">
+      <span class="user-name">admin</span>
+      <div class="dropdown">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Icon" class="user-icon">
+        <div class="dropdown-content">
+          <a href="#" id="logoutBtn">Log out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-action-btns">
+    <button id="goToCreate" type="button" class="create-account-btn green-create-btn">
+      <img src="image/Add_Button.png" alt="Add" class="add-btn-icon">
+      Create Account
+    </button>
+    <button id="goToAccounts" type="button" class="manage-account-btn">
+      <img src="image/Manage_account_Icon.png" alt="Manage" class="manage-btn-icon">
+      Manage Accounts
+    </button>
+  </div>
+
+  <div class="dashboard-container">
+
+    <!-- Search bar section INSIDE the container -->
+    <div class="dashboard-search-bar-wrapper">
+      <div class="dashboard-search-bar-inner">
+        <input type="text" id="searchInput" class="dashboard-search-bar" placeholder="Search by Project Name or ID...">
+        <button class="dashboard-clear-search" type="button" id="clearBtn" style="display:none;">X</button>
+      </div>
+    </div>
+
+    <!-- Add PR Button (visible only for superadmin and admin) -->
+    <div class="search-and-add" id="addPrSection" style="margin-bottom: 20px;">
+      <button class="add-pr-button" id="showAddPrForm">
+        <img src="image/Add_Button.png" alt="Add" class="add-pr-icon">
+        Add PR
+      </button>
+    </div>
+
+    <!-- Hidden Add PR Form Row -->
+    <div class="table-row-custom" id="addPrFormRow" style="display:none; background:#f9f9f9;">
+      <div class="row-item id-col"><input type="text" id="addPrId" placeholder="PR ID" style="width:90%"></div>
+      <div class="row-item name-col"><input type="text" id="addPrName" placeholder="Project Name" style="width:95%"></div>
+      <div class="row-item date-col"><input type="date" id="addPrDate" style="width:95%"></div>
+      <div class="row-item status-col">
+        <select id="addPrStatus" style="width:95%">
+          <option value="Released">Released</option>
+          <option value="Outgoing">Outgoing</option>
+          <option value="Processing">Processing</option>
+        </select>
+      </div>
+      <div class="row-item total-col"><input type="text" id="addPrTotal" placeholder="Total" style="width:90%"></div>
+      <div class="row-item edit-col">
+        <button class="edit-btn-custom" id="savePrBtn">Save</button>
+        <button class="edit-btn-custom" id="cancelPrBtn" style="background:#c62828;">Cancel</button>
+      </div>
+    </div>
+
+    <div class="table-header-custom">
+      <div class="header-item id-col">Purchase Request ID</div>
+      <div class="header-item name-col">Project Name</div>
+      <div class="header-item date-col">Date of Opening</div>
+      <div class="header-item status-col">Status</div>
+      <div class="header-item total-col">Total</div>
+      <div class="header-item edit-col"></div>
+    </div>
+
+    <div class="table-row-custom">
+      <div class="row-item id-col">PR ID 1</div>
+      <div class="row-item name-col">BAC Name 1</div>
+      <div class="row-item date-col">06-13-2025</div>
+      <div class="row-item status-col">Released</div>
+      <div class="row-item total-col">100,000.00</div>
+      <div class="row-item edit-col">
+        <button class="edit-btn-custom">Edit</button>
+        <button class="delete-btn-custom">Delete</button>
+      </div>
+    </div>
+    <div class="table-row-custom">
+      <div class="row-item id-col">PR ID 2</div>
+      <div class="row-item name-col">BAC Name 2</div>
+      <div class="row-item date-col">06-13-2025</div>
+      <div class="row-item status-col">Outgoing</div>
+      <div class="row-item total-col">100,000.00</div>
+      <div class="row-item edit-col">
+        <button class="edit-btn-custom">Edit</button>
+        <button class="delete-btn-custom">Delete</button>
+      </div>
+    </div>
+    <div class="table-row-custom">
+      <div class="row-item id-col">PR ID 3</div>
+      <div class="row-item name-col">BAC Name 3</div>
+      <div class="row-item date-col">06-13-2025</div>
+      <div class="row-item status-col">Processing</div>
+      <div class="row-item total-col">100,000.00</div>
+      <div class="row-item edit-col">
+        <button class="edit-btn-custom">Edit</button>
+        <button class="delete-btn-custom">Delete</button>
+      </div>
+    </div>
+    <div class="table-row-custom">
+      <div class="row-item id-col">PR ID 4</div>
+      <div class="row-item name-col">BAC Name 4</div>
+      <div class="row-item date-col">06-13-2025</div>
+      <div class="row-item status-col">Processing</div>
+      <div class="row-item total-col">100,000.00</div>
+      <div class="row-item edit-col">
+        <button class="edit-btn-custom">Edit</button>
+        <button class="delete-btn-custom">Delete</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Show/hide clear button based on input
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearBtn');
+    searchInput.addEventListener('input', function() {
+      clearBtn.style.display = this.value ? 'block' : 'none';
+    });
+
+    // Search filter for table
+    function filterTable() {
+      // Always hide the Add PR form row when searching
+      document.getElementById('addPrFormRow').style.display = 'none';
+      document.getElementById('showAddPrForm').style.display = 'inline-flex';
+
+      var filter = searchInput.value.toUpperCase();
+      var rows = document.querySelectorAll('.table-row-custom');
+      rows.forEach(function(row) {
+        // Don't filter the add PR form row
+        if (row.id === 'addPrFormRow') return;
+        var id = row.querySelector('.id-col').textContent.toUpperCase();
+        var name = row.querySelector('.name-col').textContent.toUpperCase();
+        if (id.indexOf(filter) > -1 || name.indexOf(filter) > -1) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+
+    // Optional: allow Enter key to trigger search
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        filterTable();
+      }
+    });
+
+    // Clear search button functionality
+    clearBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      filterTable();
+      clearBtn.style.display = 'none';
+    });
+
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = "Home.html";
+    });
+
+    // Create Account button logic
+    document.getElementById('goToCreate').onclick = function() {
+      window.location.href = "Create.html";
+    };
+
+    document.getElementById('goToAccounts').onclick = function() {
+      window.location.href = "Accounts.html";
+    };
+
+    // Restrict based on role
+    const currentRole = localStorage.getItem('currentRole');
+    if (currentRole && currentRole !== "superadmin") {
+      // Hide Create Account and Manage Accounts buttons for admin and user
+      document.querySelectorAll('.create-account-btn, .manage-account-btn').forEach(btn => btn.style.display = 'none');
+      const actionBar = document.querySelector('.dashboard-action-btns');
+      if (actionBar) actionBar.style.display = 'none';
+    }
+
+    if (currentRole === "user") {
+      // Hide all edit/add buttons for regular users
+      document.querySelectorAll('.edit-btn-custom, .add-pr-button').forEach(btn => btn.style.display = 'none');
+    }
+    // If you want to allow admin to add/edit table rows, but not users,
+    // add logic here to enable/disable add/edit buttons based on currentRole
+
+    // Only show Add PR section for superadmin and admin
+    if (currentRole !== "superadmin" && currentRole !== "admin") {
+      document.getElementById('addPrSection').style.display = 'none';
+    }
+
+    // Show the Add PR form row
+    document.getElementById('showAddPrForm').onclick = function() {
+      document.getElementById('addPrFormRow').style.display = 'flex';
+      this.style.display = 'none';
+    };
+
+    // Cancel Add PR
+    document.getElementById('cancelPrBtn').onclick = function() {
+      document.getElementById('addPrFormRow').style.display = 'none';
+      document.getElementById('showAddPrForm').style.display = 'inline-flex';
+      // Clear inputs
+      document.getElementById('addPrId').value = '';
+      document.getElementById('addPrName').value = '';
+      document.getElementById('addPrDate').value = '';
+      document.getElementById('addPrStatus').value = 'Released';
+      document.getElementById('addPrTotal').value = '';
+    };
+
+    // Save new PR row
+    document.getElementById('savePrBtn').onclick = function() {
+      const id = document.getElementById('addPrId').value.trim();
+      const name = document.getElementById('addPrName').value.trim();
+      const date = document.getElementById('addPrDate').value;
+      const status = document.getElementById('addPrStatus').value;
+      const total = document.getElementById('addPrTotal').value.trim();
+
+      if (!id || !name || !date || !status || !total) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Create new row
+      const row = document.createElement('div');
+      row.className = 'table-row-custom';
+      row.innerHTML = `
+        <div class="row-item id-col">${id}</div>
+        <div class="row-item name-col">${name}</div>
+        <div class="row-item date-col">${date}</div>
+        <div class="row-item status-col">${status}</div>
+        <div class="row-item total-col">${total}</div>
+        <div class="row-item edit-col">
+          <button class="edit-btn-custom">Edit</button>
+          <button class="delete-btn-custom">Delete</button>
+        </div>
+      `;
+
+      // Insert after the header and any add form row
+      const header = document.querySelector('.table-header-custom');
+      header.parentNode.insertBefore(row, header.nextSibling);
+
+      // Hide form and reset
+      document.getElementById('addPrFormRow').style.display = 'none';
+      document.getElementById('showAddPrForm').style.display = 'inline-flex';
+      document.getElementById('addPrId').value = '';
+      document.getElementById('addPrName').value = '';
+      document.getElementById('addPrDate').value = '';
+      document.getElementById('addPrStatus').value = 'Released';
+      document.getElementById('addPrTotal').value = '';
+    };
+
+    // Only show delete buttons for superadmin
+    if (currentRole !== "superadmin") {
+      document.querySelectorAll('.delete-btn-custom').forEach(btn => btn.style.display = 'none');
+    }
+
+    // Delegate delete event to the table container
+    document.querySelector('.dashboard-container').addEventListener('click', function(e) {
+      if (e.target.classList.contains('delete-btn-custom')) {
+        if (currentRole === "superadmin") {
+          if (confirm("Are you sure you want to delete this PR?")) {
+            const row = e.target.closest('.table-row-custom');
+            if (row) row.remove();
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

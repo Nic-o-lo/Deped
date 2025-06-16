@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Purchase Request Form</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #eee;
+      padding: 20px;
+    }
+
+    .font-wrapper {
+      font-size: 10px;
+    }
+
+    .a4-container {
+      background: white;
+      width: 210mm;
+      min-height: 297mm;
+      margin: auto;
+      padding: 20mm;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .info-table, .main-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 10px;
+    }
+
+    .info-table td {
+      padding: 5px;
+    }
+
+    .info-table input[type="text"] {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid black;
+      padding: 2px;
+      border-radius: 4px;
+    }
+
+    .main-table th, .main-table td {
+      border: 1px solid black;
+      padding: 4px;
+      text-align: center;
+      font-size: 10px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      border: none;
+      text-align: center;
+      font-size: 10px;
+      border-radius: 4px;
+      padding: 2px;
+    }
+
+    input[readonly] {
+      background: #f4f4f4;
+    }
+
+    .btn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .nothing-follows {
+      font-style: italic;
+      text-align: center;
+    }
+
+    .grand-total {
+      font-weight: bold;
+    }
+
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+
+      .a4-container {
+        box-shadow: none;
+        width: auto;
+        height: auto;
+        padding: 0;
+      }
+
+      .btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="font-wrapper">
+  <div class="a4-container" id="formToExport">
+    <h1>PURCHASE REQUEST</h1>
+
+    <table class="info-table">
+      <tr>
+        <td><strong>Entity Name:</strong> DEPARTMENT OF EDUCATION</td>
+        <td><strong>Fund Cluster:</strong> <input type="text" id="fundCluster" style="width: 100px;"></td>
+      </tr>
+      <tr>
+        <td><strong>Office/Section:</strong> <input type="text" id="officeSection" style="width: 120px;"></td>
+        <td>
+          <table style="width:100%; border:none;">
+            <tr>
+              <td><strong>PR No.:</strong> <input type="text" id="prNo" style="width: 120px;"></td>
+              <td><strong>Date:</strong> <input type="text" id="prDate" style="width: 120px;"></td>
+            </tr>
+            <tr>
+              <td colspan="2"><strong>Responsibility Center Code:</strong> Division Office</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table class="main-table" id="prTable">
+      <thead>
+        <tr>
+          <th>Stock/ Property No</th>
+          <th>Mode of Measurement</th>
+          <th>Item Description</th>
+          <th>Quantity</th>
+          <th>Unit Cost</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody id="prBody">
+        <tr>
+          <td>1</td>
+          <td><input type="text" name="mode[]"></td>
+          <td><input type="text" name="desc[]"></td>
+          <td><input type="number" name="qty[]" oninput="updateTotal(this)"></td>
+          <td><input type="number" name="unit[]" step="0.01" oninput="updateTotal(this)"></td>
+          <td><input type="text" name="total[]" readonly></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6" class="nothing-follows">***Nothing Follows***</td>
+        </tr>
+        <tr>
+          <td colspan="5" style="text-align:right;"><strong>Grand Total</strong></td>
+          <td><input type="text" id="grandTotal" readonly class="grand-total"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+  </div>
+  <div style="text-align:center; margin-top:18px;">
+    <button class="btn" onclick="addRow()">Add Row</button>
+    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+  </div>
+</div>
+
+<script>
+function updateTotal(el) {
+  const row = el.closest('tr');
+  const qty = parseFloat(row.querySelector('input[name="qty[]"]').value) || 0;
+  const unit = parseFloat(row.querySelector('input[name="unit[]"]').value) || 0;
+  const total = qty * unit;
+  row.querySelector('input[name="total[]"]').value = total.toFixed(2);
+  updateGrandTotal();
+}
+
+function updateGrandTotal() {
+  let grand = 0;
+  document.querySelectorAll('input[name="total[]"]').forEach(input => {
+    grand += parseFloat(input.value) || 0;
+  });
+  document.getElementById('grandTotal').value = grand.toFixed(2);
+}
+
+function addRow() {
+  const tableBody = document.getElementById('prBody');
+  const rowCount = tableBody.rows.length;
+  const newRow = tableBody.rows[0].cloneNode(true);
+
+  newRow.querySelectorAll('input').forEach(input => input.value = '');
+  newRow.cells[0].innerText = rowCount + 1;
+  tableBody.appendChild(newRow);
+}
+
+function downloadPDF() {
+  const element = document.getElementById('formToExport');
+  const opt = {
+    margin:       0,
+    filename:     'purchase_request.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 4, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+</script>
+</body>
+</html>
