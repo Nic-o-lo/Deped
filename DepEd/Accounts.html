@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Accounts - DepEd BAC Tracking System</title>
+  <link rel="stylesheet" href="Home.css">
+  
+<body>
+  <div class="header">
+    <img src="image/DEPED-LAOAG_SEAL_Glow.png" alt="DepEd Logo" class="header-logo">
+    <div class="header-text">
+      <div class="title-left">REPUBLIC OF THE PHILIPPINES<br>DEPARTMENT OF EDUCATION LAOAG</div>
+      <div class="title-right">Bids and Awards Committee Tracking System</div>
+    </div>
+  </div>
+
+  <div class="accounts-container">
+    <h2>Manage Accounts</h2>
+    <div class="accounts-category">
+      <h3>Admin Accounts</h3>
+      <ul id="adminAccountsList"></ul>
+    </div>
+    <div class="accounts-category">
+      <h3>User Accounts</h3>
+      <ul id="userAccountsList"></ul>
+    </div>
+    <div id="accountsMsg" class="msg"></div>
+    <button class="back-btn" onclick="window.location.href='Dashboard.html'">Back to Dashboard</button>
+  </div>
+
+  <script>
+let editIndex = null;
+let accounts = [];
+
+async function fetchAccounts() {
+  const res = await fetch('/api/users');
+  accounts = await res.json();
+  renderAccounts();
+}
+
+function renderAccounts() {
+  const adminList = document.getElementById('adminAccountsList');
+  const userList = document.getElementById('userAccountsList');
+  const msg = document.getElementById('accountsMsg');
+  msg.textContent = "";
+
+  // Separate accounts by admin flag
+  const admins = accounts.filter(acc => acc.admin);
+  const users = accounts.filter(acc => !acc.admin);
+
+  // Render admin accounts
+  if (admins.length === 0) {
+    adminList.innerHTML = "<li>No admin accounts found.</li>";
+  } else {
+    adminList.innerHTML = admins.map((acc, idx) => {
+      return `<li>
+        <span>Username: <b>${acc.username}</b></span>
+        <span>
+          ${acc.username !== "admin" ? `
+            <button class="delete-btn" onclick="deleteAccount(${acc.id})">Delete</button>
+          ` : ""}
+        </span>
+      </li>`;
+    }).join('');
+  }
+
+  // Render user accounts
+  if (users.length === 0) {
+    userList.innerHTML = "<li>No user accounts found.</li>";
+  } else {
+    userList.innerHTML = users.map((acc, idx) => {
+      return `<li>
+        <span>Username: <b>${acc.username}</b></span>
+        <span>
+          <button class="delete-btn" onclick="deleteAccount(${acc.id})">Delete</button>
+        </span>
+      </li>`;
+    }).join('');
+  }
+}
+
+async function deleteAccount(id) {
+  const msg = document.getElementById('accountsMsg');
+  if (confirm(`Are you sure you want to delete this account?`)) {
+    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (result.status === 'success') {
+      msg.textContent = "Account deleted successfully!";
+      msg.classList.add("success");
+      setTimeout(() => { msg.textContent = ""; msg.classList.remove("success"); }, 1500);
+      fetchAccounts();
+    } else {
+      msg.textContent = result.message || "Failed to delete account.";
+      msg.classList.remove("success");
+    }
+  }
+}
+
+window.deleteAccount = deleteAccount;
+
+fetchAccounts();
+</script>
+</body>
+</html>
