@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Progressive Form</title>
+  <style>
+    body,
+    input,
+    button,
+    select,
+    label,
+    span,
+    .doc-row,
+    .doc-header {
+      font-size: 12px !important;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 150px !important;
+      min-width: 150px !important;
+      max-width: 150px !important;
+      box-sizing: border-box;
+    }
+
+    .send-bac-btn {
+      width: 100%;
+      padding: 6px 0;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .send-bac-btn:hover {
+      background: #0d47a1;
+    }
+    .doc-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .doc-row > * {
+      flex: 1 1 120px;
+      min-width: 120px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .doc-header label {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .doc-label, .date-created {
+      line-height: 32px;
+    }
+    /* Responsive: stack columns on small screens */
+    @media (max-width: 900px) {
+      .doc-row {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .doc-row > * {
+        min-width: 0;
+        width: 100%;
+        text-align: left;
+      }
+      .doc-header {
+        display: none;
+      }
+    }
+
+    #projectDetailsForm,
+    #projectDetailsForm * {
+      font-size: 18px !important;
+    }
+
+    #projectDetailsForm input[type="text"],
+    #projectDetailsForm input[type="date"],
+    #projectDetailsForm select {
+      width: 250px !important;
+      min-width: 250px !important;
+      max-width: 250px !important;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 id="formHeading">PROJECT DETAILS</h2>
+
+  <form id="projectDetailsForm" style="max-width: 500px; margin-bottom: 32px;">
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title" required style="width:100%; margin-bottom:12px;"><br>
+
+    <label for="proponent">Proponent:</label><br>
+    <input type="text" id="proponent" name="proponent" required style="width:100%; margin-bottom:12px;"><br>
+
+    <label for="dateCreated">Date Created:</label><br>
+    <input type="date" id="dateCreated" name="dateCreated" required style="width:100%; margin-bottom:12px;" readonly><br>
+
+    <label for="prNo">PR No.:</label><br>
+    <input type="text" id="prNo" name="prNo" required style="width:100%; margin-bottom:12px;"><br>
+  </form>
+
+  <button id="showDocFormBtn" type="button" style="margin-bottom: 20px;">Create</button>
+
+  <!-- Hidden form for document details -->
+  <div id="documentDetailsForm" style="display:none; margin-bottom: 32px;">
+    <!-- Header row -->
+    <div class="doc-row doc-header">
+      <label>Document Type</label>
+      <label>Date Created</label>
+      <label>Date Approved</label>
+      <label>Office</label>
+      <label>Remarks</label>
+      <label>Actions</label>
+      <label>Current Office</label>
+    </div>
+    <!-- Purchase Request row -->
+    <div class="doc-row">
+      <span class="doc-label">Purchase Request</span>
+      <span class="date-created"></span>
+      <input type="date" name="prDateApproved">
+      <input type="text" name="prOffice">
+      <input type="text" name="prRemarks">
+      <button type="button" class="send-bac-btn">Send to BAC</button>
+      <input type="text" name="prCurrentOffice">
+    </div>
+    <!-- RFQ 1 row -->
+    <div class="doc-row">
+      <span class="doc-label">RFQ 1</span>
+      <span class="date-created"></span>
+      <input type="date" name="rfq1DateApproved">
+      <input type="text" name="rfq1Office">
+      <input type="text" name="rfq1Remarks">
+      <button type="button" class="send-bac-btn">Send to BAC</button>
+      <input type="text" name="rfq1CurrentOffice">
+    </div>
+    <!-- RFQ 2 row -->
+    <div class="doc-row">
+      <span class="doc-label">RFQ 2</span>
+      <span class="date-created"></span>
+      <input type="date" name="rfq2DateApproved">
+      <input type="text" name="rfq2Office">
+      <input type="text" name="rfq2Remarks">
+      <button type="button" class="send-bac-btn">Send to BAC</button>
+      <input type="text" name="rfq2CurrentOffice">
+    </div>
+    <!-- RFQ 3 row -->
+    <div class="doc-row">
+      <span class="doc-label">RFQ 3</span>
+      <span class="date-created"></span>
+      <input type="date" name="rfq3DateApproved">
+      <input type="text" name="rfq3Office">
+      <input type="text" name="rfq3Remarks">
+      <button type="button" class="send-bac-btn">Send to BAC</button>
+      <input type="text" name="rfq3CurrentOffice">
+    </div>
+  </div>
+
+  <script>
+    // Set today's date for Date Created
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('dateCreated').value = today;
+    });
+
+    // Show the document details form and hide the old form when Create is clicked
+    document.getElementById('showDocFormBtn').onclick = function() {
+      document.getElementById('documentDetailsForm').style.display = 'block';
+      document.getElementById('projectDetailsForm').style.display = 'none';
+      this.style.display = 'none';
+
+      // Change heading to "PROJECT STATUS"
+      document.getElementById('formHeading').textContent = 'PROJECT STATUS';
+
+      // Set today's date for all Date Created labels
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('#documentDetailsForm .date-created').forEach(span => {
+        span.textContent = today;
+      });
+    };
+  </script>
+
+</body>
+</html>

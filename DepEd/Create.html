@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=500, initial-scale=1">
+  <title>Create Account - DepEd BAC Tracking System</title>
+  <link rel="stylesheet" href="Home.css">
+  <style>
+    .create-account-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 420px;
+      min-width: 320px;
+      background: #fff;
+      padding: 40px 36px 36px 36px;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      text-align: center;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .create-account-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .create-account-form label {
+      text-align: left;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .create-account-form input[type="text"],
+    .create-account-form input[type="number"],
+    .create-account-form input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    .admin-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .create-account-form button[type="submit"] {
+      margin-top: 10px;
+      padding: 10px 0;
+      border-radius: 8px;
+      background: #0d47a1;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .create-account-form button[type="submit"]:hover {
+      background: #1565c0;
+    }
+    #createAccountMsg {
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 14px;
+    }
+    @media (max-width: 500px) {
+      .create-account-container {
+        max-width: 98vw;
+        min-width: 0;
+        padding: 18px 4vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="image/DEPED-LAOAG_SEAL_Glow.png" alt="DepEd Logo" class="header-logo">
+    <div class="header-text">
+      <div class="title-left">SCHOOLS DIVISION OF LAOAG CITY<br>DEPARTMENT OF EDUCATION</div>
+      <div class="title-right">Bids and Awards Committee Tracking System</div>
+    </div>
+  </div>
+
+  <div class="create-account-container">
+    <h2>Create Account</h2>
+    <form id="createAccountForm" class="create-account-form" autocomplete="off">
+      <label for="userID">User ID</label>
+      <input type="number" id="userID" name="userID" required placeholder="Enter user ID">
+
+      <label for="firstname">First Name</label>
+      <input type="text" id="firstname" name="firstname" required placeholder="Enter first name">
+
+      <label for="middlename">Middle Name</label>
+      <input type="text" id="middlename" name="middlename" placeholder="Enter middle name">
+
+      <label for="lastname">Last Name</label>
+      <input type="text" id="lastname" name="lastname" required placeholder="Enter last name">
+
+      <label for="position">Position</label>
+      <input type="text" id="position" name="position" required placeholder="Enter position">
+
+      <div class="admin-checkbox-row">
+        <input type="checkbox" id="admin" name="admin" value="true">
+        <label for="admin" style="margin:0;">Admin</label>
+        <span style="font-size:13px; color:#555;">(Check if admin)</span>
+      </div>
+
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required placeholder="Enter username">
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required placeholder="Enter password">
+
+      <label for="officeName">Office Name</label>
+      <input type="text" id="officeName" name="officeName" required placeholder="Enter office name">
+
+      <button type="submit">Create Account</button>
+    </form>
+    <div id="createAccountMsg"></div>
+    <button onclick="window.location.href='Dashboard.html'" style="margin-top:15px;">Back to Dashboard</button>
+  </div>
+
+  <script>
+    document.getElementById('createAccountForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      // Collect form data
+      const userID = document.getElementById('userID').value.trim();
+      const firstname = document.getElementById('firstname').value.trim();
+      const middlename = document.getElementById('middlename').value.trim();
+      const lastname = document.getElementById('lastname').value.trim();
+      const position = document.getElementById('position').value.trim();
+      const admin = document.getElementById('admin').checked;
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const officeName = document.getElementById('officeName').value.trim();
+      const msg = document.getElementById('createAccountMsg');
+
+      if (!userID || !firstname || !lastname || !position || !username || !password || !officeName) {
+        msg.textContent = "Please fill in all required fields.";
+        msg.style.color = "#c62828";
+        return;
+      }
+
+      // Send to Flask backend
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userID,
+            firstname,
+            middlename,
+            lastname,
+            position,
+            admin,
+            username,
+            password,
+            officeName
+          })
+        });
+
+        const result = await response.json();
+        if (response.ok && result.status === 'success') {
+          window.location.href = "CreateSuccess.html";
+        } else {
+          msg.textContent = result.message || "Failed to create account.";
+          msg.style.color = "#c62828";
+        }
+      } catch (err) {
+        msg.textContent = "Server error. Please try again.";
+        msg.style.color = "#c62828";
+      }
+    });
+  </script>
+</body>
+</html>
